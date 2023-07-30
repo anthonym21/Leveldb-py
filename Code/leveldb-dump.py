@@ -19,8 +19,8 @@ levelDbDir = args[0]
 outputFile = args[1]
 
 SQLitedb = SQLiteDb()
-SQLitedb.RemoveDB_File(outputFile + ".db3")
-SQLitedb.Open(outputFile + ".db3")
+SQLitedb.RemoveDB_File(f"{outputFile}.db3")
+SQLitedb.Open(f"{outputFile}.db3")
 
 SQLitedb.CreateTable("Leveldb", 'key text, value text, byte_key text, byte_value text')
 
@@ -33,7 +33,7 @@ try:
 
     numRecords = 0
 
-    with open(outputFile + ".csv", 'w') as f:
+    with open(f"{outputFile}.csv", 'w') as f:
         for key, value in levelDb2.RangeIter():
             key2 = str(key, 'utf-8', 'ignore')
             keyd16 = key.decode('utf-8', "ignore")
@@ -42,10 +42,10 @@ try:
             newVal = removeChars(vald16)
             if len(str(newKey)) > 1 and len(str(newVal)) > 1:
                 SQLitedb.InsertList("Leveldb", "key, value, byte_key, byte_value", '?, ?, ?, ?', [str(newKey), str(newVal), key, value])
-                f.write(str(newKey) + "," + str(newVal) + "\n")
+                f.write(f"{str(newKey)},{str(newVal)}" + "\n")
                 numRecords = numRecords + 1
 
-    print ("Number of records dumped are ==> " + str(numRecords))
+    print(f"Number of records dumped are ==> {str(numRecords)}")
 except:
     print ("Attempting to repair DB")
     levelDb = leveldb.RepairDB(levelDbDir)
@@ -56,7 +56,7 @@ except:
         print ("No Stats")
     numRecords = 0  
 
-    with open(outputFile + ".csv", 'w') as f:
+    with open(f"{outputFile}.csv", 'w') as f:
         for key, value in levelDb2.RangeIter():
             key2 = str(key, 'utf-8', 'ignore')
             keyd16 = key.decode('utf-8', "ignore")
@@ -65,9 +65,9 @@ except:
             newVal = removeChars(vald16)
             if len(str(newKey)) > 1 and len(str(newVal)) > 1:
                 SQLitedb.InsertList("Leveldb", "key, value, byte_key, byte_value", '?, ?, ?, ?', [str(newKey), str(newVal), key, value])
-                f.write(str(newKey) + "," + str(newVal) + "\n")
+                f.write(f"{str(newKey)},{str(newVal)}" + "\n")
                 numRecords = numRecords + 1
 
-    print ("Number of records dumped are ==> " + str(numRecords))
+    print(f"Number of records dumped are ==> {str(numRecords)}")
 
 SQLitedb.Close()

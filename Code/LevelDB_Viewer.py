@@ -44,12 +44,12 @@ class MyApp(QtWidgets.QMainWindow, Ui_MainWindow):
             self.clearLevelDbTableWidget()
             #levelDb = leveldb.LevelDB(str(fileDirectory))
             self.addLevelDb(str(fileDirectory))
-            print ("Directory selected is " + fileDirectory)
+            print(f"Directory selected is {fileDirectory}")
         else:
             print ("No Directory Selected!!!!")
 
     def addLevelDb(self, levelDbDir):
-    
+
         try:
             levelDb = leveldb.LevelDB(levelDbDir)
             try:
@@ -71,7 +71,7 @@ class MyApp(QtWidgets.QMainWindow, Ui_MainWindow):
                 self.levelDbTableWidget.setItem(rowNum, 1, self.createItem(str(value)))
                 rowNum = rowNum + 1
 
-            print ("Number of records dumped are ==> " + str(rowNum))
+            print(f"Number of records dumped are ==> {str(rowNum)}")
         except:
             print ("Attempting to repair DB")
             levelDb = leveldb.RepairDB(levelDbDir)
