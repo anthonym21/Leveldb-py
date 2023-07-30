@@ -61,10 +61,10 @@ class SQLiteDb(object):
     #
     #Args:
     #  number_of_columns: the number of columns of bind variables.
-	
+
     bind_variables = " ?"
-    for i in range(1, number_of_columns):
-       bind_variables = bind_variables + ", ?"
+    for _ in range(1, number_of_columns):
+      bind_variables = f"{bind_variables}, ?"
     #bind_variables = bind_variables + ")"	   
     return bind_variables
 	
@@ -128,15 +128,15 @@ class SQLiteDb(object):
 
     table_name = re.sub('[{}!@#$]', '', table_name)
     table_name = re.sub('-', '_', table_name)
-    table_name = "'" + table_name + "'"
+    table_name = f"'{table_name}'"
     perm_table = re.sub('[{}!@#$]', '', perm_table)
     perm_table = re.sub('-', '_', perm_table)
-    perm_table = "'" + perm_table + "'"
-	  
-    sql_query = 'Create Table '+ table_name + ' as select * from ' + perm_table + ';'
+    perm_table = f"'{perm_table}'"
+
+    sql_query = f'Create Table {table_name} as select * from {perm_table};'
 
     #print (sql_query)
-	
+
     self._cursor.execute(sql_query)
 
   def CreateTempTable(self, table_name, column_definitions):
@@ -149,7 +149,7 @@ class SQLiteDb(object):
     #Raises:
     #  RuntimeError: if the database is not opened or
     #                if the database is in read-only mode.
-    
+
     if not self._connection:
       raise RuntimeError(u'Cannot create table database not opened.')
 
@@ -158,8 +158,8 @@ class SQLiteDb(object):
 
     table_name = re.sub('[{}!@#$]', '', table_name)
     table_name = re.sub('-', '_', table_name)
-    table_name = "'" + table_name + "'"
-	
+    table_name = f"'{table_name}'"
+
     sql_query = u'CREATE Temp TABLE {0:s} ( {1:s} )'.format(
         table_name, column_definitions)
 
@@ -185,12 +185,12 @@ class SQLiteDb(object):
 
     table_name = re.sub('[{}!@#$]', '', table_name)
     table_name = re.sub('-', '_', table_name)
-    table_name = "'" + table_name + "'"
+    table_name = f"'{table_name}'"
 
-    sql_query = 'insert into '+ table_name + ' select * from ' + table_name + '_Temp;'
+    sql_query = f'insert into {table_name} select * from {table_name}_Temp;'
 
     #print (sql_query)
-	
+
     self._cursor.execute(sql_query)
 
   def AddColumn(self, table_name, column_definitions):
@@ -203,7 +203,7 @@ class SQLiteDb(object):
     #Raises:
     #  RuntimeError: if the database is not opened or
     #                if the database is in read-only mode.
-    
+
     if not self._connection:
       raise RuntimeError(u'Cannot create table database not opened.')
 
@@ -212,7 +212,7 @@ class SQLiteDb(object):
 
     table_name = re.sub('[{}!@#$]', '', table_name)
     table_name = re.sub('-', '_', table_name)
-    table_name = "'" + table_name + "'"
+    table_name = f"'{table_name}'"
 
     sql_query = u'Alter TABLE {0:s} Add {1:s} '.format(
         table_name, column_definitions)
@@ -230,7 +230,7 @@ class SQLiteDb(object):
     #Raises:
     #  RuntimeError: if the database is not opened or
     #                if the database is in read-only mode.
-    
+
     if not self._connection:
       raise RuntimeError(u'Cannot create table database not opened.')
 
@@ -239,7 +239,7 @@ class SQLiteDb(object):
 
     table_name = re.sub('[{}!@#$]', '', table_name)
     table_name = re.sub('-', '_', table_name)
-    table_name = "'" + table_name + "'"
+    table_name = f"'{table_name}'"
 
     sql_query = u'insert into {0:s} ( {1:s} ) values ( {2:s} )'.format(
         table_name, column_definitions, column_bind_values)
@@ -257,7 +257,7 @@ class SQLiteDb(object):
     #Raises:
     #  RuntimeError: if the database is not opened or
     #                if the database is in read-only mode.
-    
+
     if not self._connection:
       raise RuntimeError(u'Cannot create table database not opened.')
 
@@ -266,13 +266,13 @@ class SQLiteDb(object):
 
     table_name = re.sub('[{}!@#$]', '', table_name)
     table_name = re.sub('-', '_', table_name)
-    table_name = "'" + table_name + "'"
+    table_name = f"'{table_name}'"
 
     sql_query = u'insert into {0:s} ( {1:s} ) values ( {2:s} )'.format(
         table_name, column_definitions, column_bind_values)
 
     #print (sql_query + " " + column_values)
-	
+
     self._cursor.execute(sql_query, column_values)
 
   def InsertList(self, TableName, Columns, BindVariables, ListToInsert):
@@ -283,7 +283,7 @@ class SQLiteDb(object):
     if self.read_only:
       raise RuntimeError(u'Cannot create table database in read-only mode.')
 
-    sql = 'INSERT INTO ' + TableName + ' ( ' + Columns + ' ) ' + ' VALUES (' + BindVariables + ') '
+    sql = f'INSERT INTO {TableName} ( {Columns} )  VALUES ({BindVariables}) '
     self._cursor.execute(sql, ListToInsert)
 
 
@@ -296,13 +296,12 @@ class SQLiteDb(object):
     #Raises:
     #  RuntimeError: if the database is not opened or
     #                if the database is in read-only mode.
-    
+
     if not self._connection:
       raise RuntimeError(u'Cannot get column headings database not opened.')
 
     self._cursor.execute(sql_statement)
-    fieldnames=[f[0] for f in self._cursor.description]
-    return fieldnames
+    return [f[0] for f in self._cursor.description]
 	
   def GetNumberColumn(self, sql_statement):
     #Returns the column headings from a SQL Statement
@@ -313,13 +312,12 @@ class SQLiteDb(object):
     #Raises:
     #  RuntimeError: if the database is not opened or
     #                if the database is in read-only mode.
-    
+
     if not self._connection:
       raise RuntimeError(u'Cannot get column headings database not opened.')
 
     self._cursor.execute(sql_statement)
-    num_rows = len(self._cursor.fetchone())
-    return num_rows
+    return len(self._cursor.fetchone())
     
   def TableExists(self, table_name):
     # Checks if the table exists in the database
@@ -338,11 +336,7 @@ class SQLiteDb(object):
     sql_query = u'SELECT name FROM sqlite_master WHERE type = "table" AND name = "{0:s}"'.format(table_name)
 
     self._cursor.execute(sql_query)
-    if self._cursor.fetchone():
-      has_table = True
-    else:
-      has_table = False
-    return has_table
+    return bool(self._cursor.fetchone())
 	
   def SelectOneRow (self, sql_query):
     # Checks if the table exists in the database
@@ -394,7 +388,7 @@ class SQLiteDb(object):
 
     self._cursor.execute(sql_query)
 
-  def DropTable (self, table_name):
+  def DropTable(self, table_name):
     # Checks if the table exists in the database
 
     # Args:
@@ -408,7 +402,7 @@ class SQLiteDb(object):
       raise RuntimeError(
           u'Cannot determine if table exists database not opened.')
 
-    sql_query = 'Drop table ' + table_name + ';'
+    sql_query = f'Drop table {table_name};'
 
     self._cursor.execute(sql_query)
 
@@ -427,7 +421,7 @@ class SQLiteDb(object):
 
     #Raises:
     #  RuntimeError: if the database is already opened.
-     
+
     if self._connection:
       raise RuntimeError(u'Cannot open database already opened.')
 
@@ -441,7 +435,4 @@ class SQLiteDb(object):
     self._connection.text_factory = lambda x: unicode(x, "utf-8", "ignore")
 
     self._cursor = self._connection.cursor()
-    if not self._cursor:
-      return False
-
-    return True
+    return bool(self._cursor)
